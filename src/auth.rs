@@ -1,8 +1,9 @@
 use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 
-use crate::db::{get_reply, get_user, ClientMessage, Command};
 use crate::error::ServiceError;
+use crate::services::{get_reply, ClientMessage, Command};
+use crate::users::get_user;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Auth {

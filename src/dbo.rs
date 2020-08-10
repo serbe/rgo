@@ -3,6 +3,7 @@ use std::fmt;
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
+use crate::error::ServiceError;
 use crate::rpel::certificate::{Certificate, CertificateList};
 use crate::rpel::company::{Company, CompanyList};
 use crate::rpel::contact::{Contact, ContactList};
@@ -17,8 +18,7 @@ use crate::rpel::select::SelectItem;
 use crate::rpel::siren::{Siren, SirenList};
 use crate::rpel::siren_type::{SirenType, SirenTypeList};
 use crate::rpel::user::{User, UserList};
-use crate::db::{Item, Object};
-use crate::error::ServiceError;
+use crate::services::{Item, Object};
 
 #[derive(Deserialize, Serialize)]
 pub enum DBObject {

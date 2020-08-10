@@ -112,7 +112,11 @@ impl Phone {
         Ok(client.execute(&stmt, &[&id, &fax]).await?)
     }
 
-    pub async fn delete_companies(client: &Client, id: i64, fax: bool) -> Result<u64, ServiceError> {
+    pub async fn delete_companies(
+        client: &Client,
+        id: i64,
+        fax: bool,
+    ) -> Result<u64, ServiceError> {
         let stmt = client
             .prepare(
                 "

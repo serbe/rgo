@@ -2,8 +2,8 @@ use chrono::{Local, NaiveDate, NaiveDateTime};
 use deadpool_postgres::Client;
 use serde::{Deserialize, Serialize};
 
-use crate::rpel::email::Email;
 use crate::error::ServiceError;
+use crate::rpel::email::Email;
 use crate::rpel::phone::Phone;
 
 #[derive(Default, Deserialize, Serialize)]

@@ -1,8 +1,6 @@
 use deadpool_postgres::{Manager, Pool};
 use tokio_postgres::{Config, NoTls};
 
-pub mod error;
-
 pub mod certificate;
 pub mod company;
 pub mod contact;
@@ -45,12 +43,4 @@ pub fn get_pool() -> Pool {
     dotenv::dotenv().ok();
     let manager = Manager::new(get_config(), NoTls);
     Pool::new(manager, 16)
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
 }
