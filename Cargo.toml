@@ -1,8 +1,8 @@
 [package]
 authors = ["Serbe <mkoctuk@gmail.com>"]
 edition = "2018"
-name = "rugo"
-version = "0.9.1"
+name = "rgo"
+version = "0.1.0"
 
 [dependencies]
 actix-cors = "0.2"

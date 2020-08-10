@@ -1439,8 +1439,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "rugo"
-version = "0.9.1"
+name = "rgo"
+version = "0.1.0"
 dependencies = [
  "actix-cors",
  "actix-rt",
