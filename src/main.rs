@@ -33,7 +33,7 @@ async fn main() -> io::Result<()> {
             .wrap(middleware::Logger::default())
             .service(web::resource("/api/go/check").route(web::post().to(check_auth)))
             .service(web::resource("/api/go/login").route(web::post().to(login)))
-            .service(web::resource("/api/go").route(web::post().to(jsonpost)))
+            .service(web::resource("/api/go/json").route(web::post().to(jsonpost)))
     })
     .bind(addr)?
     .run()
