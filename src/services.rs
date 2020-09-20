@@ -1,12 +1,12 @@
 use actix_web::{web, HttpResponse};
-use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 // use log::info;
 
 use crate::auth::check;
 use crate::dbo::{delete_item, get_item, get_list, insert_item, update_item, DBObject};
 use crate::error::ServiceError;
-use crate::users::{user_cmd, UserObject, USERS};
+use crate::users::{user_cmd, UserObject};
+use crate::AppData;
 
 #[derive(Deserialize)]
 pub struct ClientMessage {
@@ -62,23 +62,13 @@ impl WsMsg {
     }
 }
 
-pub fn get_reply(username: &str, userkey: &str) -> Option<(String, i64)> {
-    let mutex = USERS.get()?;
-    let users = mutex.lock().ok()?;
-    let reply = users
-        .iter()
-        .find(|(_key, user)| user.name == username && user.key == userkey)
-        .map(|(key, user)| (key, user.role))?;
-    Some((reply.0.clone(), reply.1))
-}
-
 pub async fn jsonpost(
-    db: web::Data<Pool>,
+    data: web::Data<AppData>,
     params: web::Json<ClientMessage>,
 ) -> Result<HttpResponse, ServiceError> {
     let msg: ClientMessage = params.into_inner();
-    let cmd = check(msg)?;
-    let client = db.get().await?;
+    let cmd = check(&data.users, msg)?;
+    let client = data.pool.get().await?;
     let msg = match cmd {
         Command::Get(object) => match object {
             Object::Item(item) => {
