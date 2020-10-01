@@ -1,22 +1,19 @@
-use actix_web::{error::ResponseError, HttpResponse};
-use deadpool_postgres::PoolError;
-use serde_json::error::Error as SJError;
-use thiserror::Error;
+pub type Result<T> = std::result::Result<T, ServiceError>;
 
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum ServiceError {
-    // #[error("Internal Server Error")]
-    // InternalServerError,
+    #[error("Socket address parse: {0}")]
+    AddrParse(#[from] std::net::AddrParseError),
     #[error("Bad request: {0}")]
     BadRequest(String),
 
-    // #[error("IO Error: {0}")]
-    // IOError(std::io::Error),
-    #[error("Unable to connect to the database")]
-    PoolError(PoolError),
+    #[error("IO Error: {0}")]
+    IOError(#[from] std::io::Error),
+    #[error("Deadpool error: {0}")]
+    PoolError(#[from] deadpool_postgres::PoolError),
 
     #[error("Serde JSON error: {0}")]
-    SJError(SJError),
+    SJError(#[from] serde_json::error::Error),
     #[error("Not auth")]
     NotAuth,
     #[error("Not permission")]
@@ -27,45 +24,37 @@ pub enum ServiceError {
     DBQueryError(#[from] tokio_postgres::Error),
 }
 
-impl From<PoolError> for ServiceError {
-    fn from(error: PoolError) -> Self {
-        Self::PoolError(error)
-    }
+impl warp::reject::Reject for ServiceError {
+
 }
 
-impl ResponseError for ServiceError {
-    fn error_response(&self) -> HttpResponse {
-        match self {
-            // ServiceError::InternalServerError => HttpResponse::BadRequest()
-            //     .reason("Internal server error. Please try again later")
-            //     .finish(),
-            ServiceError::BadRequest(_) => {
-                HttpResponse::BadRequest().reason("bad request").finish()
-            }
-            // ServiceError::IOError(_) => HttpResponse::BadRequest().reason("io error").finish(),
-            ServiceError::PoolError(_) => HttpResponse::BadRequest()
-                .reason("unable to connect to the database")
-                .finish(),
-            ServiceError::DBQueryError(_) => HttpResponse::BadRequest().reason("db error").finish(),
-            ServiceError::SJError(_) => HttpResponse::BadRequest()
-                .reason("serde json error")
-                .finish(),
-            ServiceError::NotAuth => HttpResponse::NotFound().finish(),
-            // ServiceError::FailedAuth => HttpResponse::BadRequest()
-            //     .reason("Internal server error. Please try again later")
-            //     .finish(),
-            // ServiceError::ClientGet => HttpResponse::BadRequest()
-            //     .reason("Internal server error. Please try again later")
-            //     .finish(),
-            ServiceError::NotPermission => HttpResponse::BadRequest()
-                .reason("Internal server error. Please try again later")
-                .finish(),
-        }
-    }
-}
-
-impl From<SJError> for ServiceError {
-    fn from(error: SJError) -> Self {
-        Self::SJError(error)
-    }
-}
+// impl ResponseError for ServiceError {
+//     fn error_response(&self) -> HttpResponse {
+//         match self {
+//             // ServiceError::InternalServerError => HttpResponse::BadRequest()
+//             //     .reason("Internal server error. Please try again later")
+//             //     .finish(),
+//             ServiceError::BadRequest(_) => {
+//                 HttpResponse::BadRequest().reason("bad request").finish()
+//             }
+//             // ServiceError::IOError(_) => HttpResponse::BadRequest().reason("io error").finish(),
+//             ServiceError::PoolError(_) => HttpResponse::BadRequest()
+//                 .reason("unable to connect to the database")
+//                 .finish(),
+//             ServiceError::DBQueryError(_) => HttpResponse::BadRequest().reason("db error").finish(),
+//             ServiceError::SJError(_) => HttpResponse::BadRequest()
+//                 .reason("serde json error")
+//                 .finish(),
+//             ServiceError::NotAuth => HttpResponse::NotFound().finish(),
+//             // ServiceError::FailedAuth => HttpResponse::BadRequest()
+//             //     .reason("Internal server error. Please try again later")
+//             //     .finish(),
+//             // ServiceError::ClientGet => HttpResponse::BadRequest()
+//             //     .reason("Internal server error. Please try again later")
+//             //     .finish(),
+//             ServiceError::NotPermission => HttpResponse::BadRequest()
+//                 .reason("Internal server error. Please try again later")
+//                 .finish(),
+//         }
+//     }
+// }

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::iter;
 
-use actix_web::HttpResponse;
 use deadpool_postgres::Client;
 use deadpool_postgres::Pool;
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
@@ -148,7 +147,7 @@ impl WsUserMsg {
     }
 }
 
-pub async fn user_cmd(obj: UserObject, client: &Client) -> Result<HttpResponse, ServiceError> {
+pub async fn user_cmd(obj: UserObject, client: &Client) -> Result<impl warp::Reply, warp::Rejection> {
     let a = match obj {
         UserObject::Get(id) => WsUserMsg::from_get(User::get(&client, id).await?),
         UserObject::GetList => WsUserMsg::from_list(UserList::get_all(&client).await?),
@@ -156,5 +155,5 @@ pub async fn user_cmd(obj: UserObject, client: &Client) -> Result<HttpResponse, 
         UserObject::Update(item) => WsUserMsg::from_update(User::update(&client, item).await?),
         UserObject::Delete(id) => WsUserMsg::from_delete(User::delete(&client, id).await?),
     };
-    Ok(HttpResponse::Ok().json(&a))
+    Ok(warp::reply::json(&a))
 }

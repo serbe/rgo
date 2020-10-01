@@ -1,12 +1,11 @@
-use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
+use deadpool_postgres::Pool;
 // use log::info;
 
 use crate::auth::check;
 use crate::dbo::{delete_item, get_item, get_list, insert_item, update_item, DBObject};
 use crate::error::ServiceError;
-use crate::users::{user_cmd, UserObject};
-use crate::AppData;
+use crate::users::{user_cmd, UserObject, Users};
 
 #[derive(Deserialize)]
 pub struct ClientMessage {
@@ -63,12 +62,13 @@ impl WsMsg {
 }
 
 pub async fn jsonpost(
-    data: web::Data<AppData>,
-    params: web::Json<ClientMessage>,
-) -> Result<HttpResponse, ServiceError> {
-    let msg: ClientMessage = params.into_inner();
-    let cmd = check(&data.users, msg)?;
-    let client = data.pool.get().await?;
+    params: ClientMessage,
+    pool: Pool,
+    users: Users,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let msg: ClientMessage = params;
+    let cmd = check(&users, msg)?;
+    let client = pool.get().await?;
     let msg = match cmd {
         Command::Get(object) => match object {
             Object::Item(item) => {
@@ -97,5 +97,5 @@ pub async fn jsonpost(
         ),
         Command::User(obj) => return user_cmd(obj, &client).await,
     };
-    Ok(HttpResponse::Ok().json(&msg))
+    Ok(warp::reply::json(&msg))
 }

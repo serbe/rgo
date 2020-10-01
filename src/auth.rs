@@ -1,10 +1,8 @@
-use actix_web::{web, HttpResponse};
 use serde::{Deserialize, Serialize};
 
 use crate::error::ServiceError;
 use crate::services::{ClientMessage, Command};
 use crate::users::Users;
-use crate::AppData;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Auth {
@@ -24,29 +22,26 @@ struct C {
 }
 
 pub async fn login(
-    data: web::Data<AppData>,
-    params: web::Json<Auth>,
-) -> Result<HttpResponse, ServiceError> {
-    let reply = data
-        .users
+    params: Auth,
+    users: Users,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    let reply = users
         .get_reply(&params.u, &params.p)
-        .ok_or(ServiceError::NotAuth)?;
-    Ok(HttpResponse::Ok().json(A {
+        .ok_or(warp::reject::not_found())?;
+    Ok(warp::reply::json(&A {
         t: reply.0,
         r: reply.1,
     }))
 }
 
 pub async fn check_auth(
-    data: web::Data<AppData>,
-    params: web::Json<A>,
-) -> Result<HttpResponse, ServiceError> {
-    let result = data
-        .users
+    params: A,
+    users: Users,
+) -> std::result::Result<impl warp::Reply, warp::Rejection> {
+    let result = users
         .get_user(&params.t)
-        .map(|u| u.role == params.r)
-        .ok_or(ServiceError::NotAuth)?;
-    Ok(HttpResponse::Ok().json(C { r: result }))
+        .map(|u| u.role == params.r).map_or(false, |v| v);
+    Ok(warp::reply::json(&C { r: result }))
 }
 
 pub fn check(users: &Users, message: ClientMessage) -> Result<Command, ServiceError> {
