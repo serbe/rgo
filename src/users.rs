@@ -147,7 +147,10 @@ impl WsUserMsg {
     }
 }
 
-pub async fn user_cmd(obj: UserObject, client: &Client) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn user_cmd(
+    obj: UserObject,
+    client: &Client,
+) -> Result<warp::reply::Json, warp::Rejection> {
     let a = match obj {
         UserObject::Get(id) => WsUserMsg::from_get(User::get(&client, id).await?),
         UserObject::GetList => WsUserMsg::from_list(UserList::get_all(&client).await?),

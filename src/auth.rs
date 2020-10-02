@@ -21,10 +21,7 @@ struct C {
     r: bool,
 }
 
-pub async fn login(
-    params: Auth,
-    users: Users,
-) -> Result<impl warp::Reply, warp::Rejection> {
+pub async fn login(params: Auth, users: Users) -> Result<warp::reply::Json, warp::Rejection> {
     let reply = users
         .get_reply(&params.u, &params.p)
         .ok_or(warp::reject::not_found())?;
@@ -37,10 +34,11 @@ pub async fn login(
 pub async fn check_auth(
     params: A,
     users: Users,
-) -> std::result::Result<impl warp::Reply, warp::Rejection> {
+) -> std::result::Result<warp::reply::Json, warp::Rejection> {
     let result = users
         .get_user(&params.t)
-        .map(|u| u.role == params.r).map_or(false, |v| v);
+        .map(|u| u.role == params.r)
+        .map_or(false, |v| v);
     Ok(warp::reply::json(&C { r: result }))
 }
 

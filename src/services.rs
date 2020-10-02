@@ -1,6 +1,5 @@
-use serde::{Deserialize, Serialize};
 use deadpool_postgres::Pool;
-// use log::info;
+use serde::{Deserialize, Serialize};
 
 use crate::auth::check;
 use crate::dbo::{delete_item, get_item, get_list, insert_item, update_item, DBObject};
@@ -65,10 +64,10 @@ pub async fn jsonpost(
     params: ClientMessage,
     pool: Pool,
     users: Users,
-) -> Result<impl warp::Reply, warp::Rejection> {
+) -> Result<warp::reply::Json, warp::Rejection> {
     let msg: ClientMessage = params;
     let cmd = check(&users, msg)?;
-    let client = pool.get().await?;
+    let client = pool.get().await.map_err(ServiceError::PoolError)?;
     let msg = match cmd {
         Command::Get(object) => match object {
             Object::Item(item) => {
