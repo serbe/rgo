@@ -1,9 +1,8 @@
 use actix_web::{error::ResponseError, HttpResponse};
 use deadpool_postgres::PoolError;
 use serde_json::error::Error as SJError;
-use thiserror::Error;
 
-#[derive(Debug, Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum ServiceError {
     // #[error("Internal Server Error")]
     // InternalServerError,
@@ -12,11 +11,11 @@ pub enum ServiceError {
 
     // #[error("IO Error: {0}")]
     // IOError(std::io::Error),
-    #[error("Unable to connect to the database")]
-    PoolError(PoolError),
+    #[error("Unable to connect to the database: {0}")]
+    PoolError(#[from] PoolError),
 
     #[error("Serde JSON error: {0}")]
-    SJError(SJError),
+    SJError(#[from] SJError),
     #[error("Not auth")]
     NotAuth,
     #[error("Not permission")]
@@ -27,11 +26,11 @@ pub enum ServiceError {
     DBQueryError(#[from] tokio_postgres::Error),
 }
 
-impl From<PoolError> for ServiceError {
-    fn from(error: PoolError) -> Self {
-        Self::PoolError(error)
-    }
-}
+// impl From<PoolError> for ServiceError {
+//     fn from(error: PoolError) -> Self {
+//         Self::PoolError(error)
+//     }
+// }
 
 impl ResponseError for ServiceError {
     fn error_response(&self) -> HttpResponse {
@@ -64,8 +63,8 @@ impl ResponseError for ServiceError {
     }
 }
 
-impl From<SJError> for ServiceError {
-    fn from(error: SJError) -> Self {
-        Self::SJError(error)
-    }
-}
+// impl From<SJError> for ServiceError {
+//     fn from(error: SJError) -> Self {
+//         Self::SJError(error)
+//     }
+// }
