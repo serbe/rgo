@@ -66,7 +66,8 @@ pub async fn jsonpost(
     users: Users,
 ) -> Result<warp::reply::Json, warp::Rejection> {
     let msg: ClientMessage = params;
-    let cmd = check(&users, msg)?;
+    // let cmd = check(&users, msg)?;
+    let cmd = msg.command;
     let client = pool.get().await.map_err(ServiceError::PoolError)?;
     let msg = match cmd {
         Command::Get(object) => match object {
