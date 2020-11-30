@@ -24,7 +24,7 @@ struct C {
 pub async fn login(params: Auth, users: Users) -> Result<warp::reply::Json, warp::Rejection> {
     let reply = users
         .get_reply(&params.u, &params.p)
-        .ok_or(warp::reject::not_found())?;
+        .ok_or_else(warp::reject::not_found)?;
     Ok(warp::reply::json(&A {
         t: reply.0,
         r: reply.1,
