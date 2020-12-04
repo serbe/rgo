@@ -45,19 +45,19 @@ async fn run_warp() -> Result<()> {
         .allow_methods(&[Method::GET, Method::POST, Method::DELETE, Method::OPTIONS])
         .max_age(3600);
 
-    let check = warp::path!("api" / "go " / "check")
+    let check = warp::path!("go " / "check")
         .and(json_length)
         .and(warp::body::json())
         .and(check_users)
         .and_then(check_auth);
 
-    let login = warp::path!("api" / "go" / "check")
+    let login = warp::path!("go" / "login")
         .and(json_length)
         .and(warp::body::json())
         .and(login_users)
         .and_then(login);
 
-    let json = warp::path!("api" / "go" / "json")
+    let json = warp::path!("go" / "json")
         .and(json_length)
         .and(warp::body::json())
         .and(pool)
