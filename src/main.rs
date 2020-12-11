@@ -40,12 +40,16 @@ async fn run_warp() -> Result<()> {
     // ])
 
     let cors = warp::cors()
-        .allow_origin("http://localhost:3000")
-        .allow_headers(vec!["content-type"])
+        .allow_origins(vec![
+            "http://localhost:3000",
+            "chrome-extension://bnmefgocpeggmnpkglmkfoidibbcogcf",
+            "moz-extension://4b800887-ba22-4cb5-a284-41421b565e0e",
+        ])
+        .allow_headers(vec!["content-type", "content-length"])
         .allow_methods(&[Method::GET, Method::POST, Method::DELETE, Method::OPTIONS])
         .max_age(3600);
 
-    let check = warp::path!("go " / "check")
+    let check = warp::path!("go" / "check")
         .and(json_length)
         .and(warp::body::json())
         .and(check_users)
