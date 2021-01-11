@@ -44,6 +44,7 @@ async fn run_warp() -> Result<()> {
             "http://localhost:3000",
             "chrome-extension://bnmefgocpeggmnpkglmkfoidibbcogcf",
             "moz-extension://4b800887-ba22-4cb5-a284-41421b565e0e",
+            "https://udds.ru",
         ])
         .allow_headers(vec!["content-type", "content-length"])
         .allow_methods(&[Method::GET, Method::POST, Method::DELETE, Method::OPTIONS])
