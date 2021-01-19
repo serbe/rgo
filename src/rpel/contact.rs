@@ -6,7 +6,7 @@ use crate::error::ServiceError;
 use crate::rpel::email::Email;
 use crate::rpel::phone::Phone;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Contact {
     #[serde(default)]
     pub id: i64,
@@ -29,7 +29,7 @@ pub struct Contact {
     pub educations: Vec<NaiveDate>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ContactList {
     pub id: i64,
     pub name: Option<String>,
@@ -40,7 +40,7 @@ pub struct ContactList {
     pub faxes: Vec<i64>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ContactShort {
     pub id: i64,
     pub name: Option<String>,

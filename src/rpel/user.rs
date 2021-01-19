@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::ServiceError;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct User {
     #[serde(default)]
     pub id: i64,
@@ -17,7 +17,7 @@ pub struct User {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct UserList {
     pub id: i64,
     pub name: String,

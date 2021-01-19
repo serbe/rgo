@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::ServiceError;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Default, Debug, Deserialize, Serialize)]
 pub struct Kind {
     #[serde(default)]
     pub id: i64,
@@ -17,7 +17,7 @@ pub struct Kind {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct KindList {
     pub id: i64,
     pub name: Option<String>,

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::ServiceError;
 
-#[derive(Clone, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Phone {
     pub id: i64,
     pub company_id: Option<i64>,

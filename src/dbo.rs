@@ -20,7 +20,7 @@ use crate::rpel::siren_type::{SirenType, SirenTypeList};
 use crate::rpel::user::{User, UserList};
 use crate::services::{Item, Object};
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub enum DBObject {
     Null,
     Certificate(Certificate),

@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::ServiceError;
 
-#[derive(Default, Deserialize, Serialize)]
+#[derive(Default, Debug, Deserialize, Serialize)]
 pub struct Practice {
     #[serde(default)]
     pub id: i64,
@@ -19,7 +19,7 @@ pub struct Practice {
     pub updated_at: Option<NaiveDateTime>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PracticeList {
     pub id: i64,
     pub company_id: Option<i64>,
@@ -32,7 +32,7 @@ pub struct PracticeList {
     pub date_str: Option<String>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct PracticeShort {
     pub id: i64,
     pub company_id: Option<i64>,
