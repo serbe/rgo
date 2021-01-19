@@ -6,17 +6,17 @@ version = "0.2.0"
 
 [dependencies]
 chrono = {version = "0.4", features = ["serde"]}
-deadpool-postgres = "0.5"
+deadpool-postgres = "0.7"
 dotenv = "0.15"
 env_logger = "0.8"
 futures = "0.3"
 futures-util = "0.3"
+hyper = {version = "0.14", features = ["http1", "server"]}
 log = {version = "0.4", features = ["std"]}
 rand = "0.8"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
 thiserror = "1.0"
-tokio = {version = "0.2", features = ["io-util", "sync", "macros"]}
-tokio-postgres = {version = "0.5", features = ["with-chrono-0_4"]}
-warp = "0.2"
+tokio = {version = "1.0", features = ["io-util", "sync", "macros"]}
+tokio-postgres = {version = "0.7", features = ["with-chrono-0_4"]}
