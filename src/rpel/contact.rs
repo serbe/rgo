@@ -69,10 +69,10 @@ impl Contact {
                         c.note,
                         c.created_at,
                         c.updated_at,
-                        array_remove(array_agg(e.email), NULL) AS emails,
-                        array_remove(array_agg(ph.phone), NULL) AS phones,
-                        array_remove(array_agg(f.phone), NULL) AS faxes,
-                        array_remove(array_agg(ed.start_date), NULL) AS educations
+                        array_remove(array_agg(DISTINCT e.email), NULL) AS emails,
+                        array_remove(array_agg(DISTINCT ph.phone), NULL) AS phones,
+                        array_remove(array_agg(DISTINCT f.phone), NULL) AS faxes,
+                        array_remove(array_agg(DISTINCT ed.start_date), NULL) AS educations
                     FROM
                         contacts AS c
                     LEFT JOIN
@@ -242,8 +242,8 @@ impl ContactList {
                         co.id AS company_id,
                         co.name AS company_name,
                         po.name AS post_name,
-                        array_remove(array_agg(ph.phone), NULL) AS phones,
-                        array_remove(array_agg(f.phone), NULL) AS faxes
+                        array_remove(array_agg(DISTINCT ph.phone), NULL) AS phones,
+                        array_remove(array_agg(DISTINCT f.phone), NULL) AS faxes
                     FROM
                         contacts AS c
                     LEFT JOIN

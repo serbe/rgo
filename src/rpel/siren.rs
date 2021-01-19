@@ -236,7 +236,7 @@ impl SirenList {
                         t.name AS siren_type_name,
                         s.address,
                         c.name AS contact_name,
-                        array_remove(array_agg(ph.phone), NULL) AS phones
+                        array_remove(array_agg(DISTINCT ph.phone), NULL) AS phones
                     FROM
                         sirens AS s
                     LEFT JOIN
