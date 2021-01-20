@@ -57,9 +57,9 @@ impl Company {
                         c.note,
                         c.created_at,
                         c.updated_at,
-                        array_remove(array_agg(e.email), NULL) AS emails,
-                        array_remove(array_agg(ph.phone), NULL) AS phones,
-                        array_remove(array_agg(f.phone), NULL) AS faxes
+                        array_remove(array_agg(DISTINCT e.email), NULL) AS emails,
+                        array_remove(array_agg(DISTINCT ph.phone), NULL) AS phones,
+                        array_remove(array_agg(DISTINCT f.phone), NULL) AS faxes
                     FROM
                         companies AS c
                     LEFT JOIN
@@ -207,10 +207,10 @@ impl CompanyList {
                         c.name,
                         c.address,
                         s.name AS scope_name,
-                        array_remove(array_agg(e.email), NULL) AS emails,
-                        array_remove(array_agg(p.phone), NULL) AS phones,
-                        array_remove(array_agg(f.phone), NULL) AS faxes,
-                        array_remove(array_agg(pr.date_of_practice), NULL) AS practices
+                        array_remove(array_agg(DISTINCT e.email), NULL) AS emails,
+                        array_remove(array_agg(DISTINCT p.phone), NULL) AS phones,
+                        array_remove(array_agg(DISTINCT f.phone), NULL) AS faxes,
+                        array_remove(array_agg(DISTINCT pr.date_of_practice), NULL) AS practices
                     FROM
                         companies AS c
                     LEFT JOIN
