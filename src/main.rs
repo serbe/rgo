@@ -1,6 +1,7 @@
-use env_logger::Env;
 use std::net::SocketAddr;
 
+use env_logger::Env;
+use tokio::runtime::Runtime;
 use warp::{http::Method, Filter};
 
 use auth::{check_auth, login};
@@ -80,6 +81,6 @@ async fn run_warp() -> Result<()> {
 }
 
 fn main() -> Result<()> {
-    let mut rt = tokio::runtime::Runtime::new()?;
+    let rt = Runtime::new()?;
     rt.block_on(run_warp())
 }
