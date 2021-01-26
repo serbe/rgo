@@ -34,23 +34,23 @@ pub enum Command {
 }
 
 #[derive(Serialize)]
-pub struct WsMsg {
+pub struct WebMsg {
     pub command: String,
     pub name: String,
     pub object: DBObject,
     pub error: String,
 }
 
-impl WsMsg {
-    pub fn from_dbo(command: &str, name: String, dbo: Result<DBObject, ServiceError>) -> WsMsg {
+impl WebMsg {
+    pub fn from_dbo(command: &str, name: String, dbo: Result<DBObject, ServiceError>) -> WebMsg {
         match dbo {
-            Ok(object) => WsMsg {
+            Ok(object) => WebMsg {
                 command: command.to_string(),
                 name,
                 object,
                 error: String::new(),
             },
-            Err(err) => WsMsg {
+            Err(err) => WebMsg {
                 command: command.to_string(),
                 name,
                 object: DBObject::Null,
@@ -71,25 +71,27 @@ pub async fn jsonpost(
     let msg = match cmd {
         Command::Get(object) => match object {
             Object::Item(item) => {
-                WsMsg::from_dbo("Get", item.name.clone(), get_item(&item, &client).await)
+                WebMsg::from_dbo("Get", item.name.clone(), get_item(&item, &client).await)
             }
-            Object::List(obj) => WsMsg::from_dbo("Get", obj.clone(), get_list(&obj, &client).await),
+            Object::List(obj) => {
+                WebMsg::from_dbo("Get", obj.clone(), get_list(&obj, &client).await)
+            }
         },
-        Command::Insert(dbobject) => WsMsg::from_dbo(
+        Command::Insert(dbobject) => WebMsg::from_dbo(
             "Insert",
             dbobject.name(),
             Ok(insert_item(dbobject, &client)
                 .await
                 .map(|_| DBObject::Null)?),
         ),
-        Command::Update(dbobject) => WsMsg::from_dbo(
+        Command::Update(dbobject) => WebMsg::from_dbo(
             "Update",
             dbobject.name(),
             Ok(update_item(dbobject, &client)
                 .await
                 .map(|_| DBObject::Null)?),
         ),
-        Command::Delete(item) => WsMsg::from_dbo(
+        Command::Delete(item) => WebMsg::from_dbo(
             "Delete",
             item.name.clone(),
             Ok(delete_item(&item, &client).await.map(|_| DBObject::Null)?),
