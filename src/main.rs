@@ -78,7 +78,8 @@ async fn run_warp() -> Result<()> {
     let routes = warp::post()
         .and(check.or(login).or(json))
         .with(cors)
-        .with(warp::log("cors test"));
+        .with(warp::log("cors test"))
+        .with(warp::compression::deflate());
 
     warp::serve(routes).run(addr.parse::<SocketAddr>()?).await;
 
