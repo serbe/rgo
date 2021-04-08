@@ -2,7 +2,7 @@ use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 use crate::auth::check;
-use crate::dbo::{delete_item, get_item, get_list, insert_item, update_item, DBObject};
+use crate::dbo::{delete_item, get_item, get_list, insert_item, update_item, DbObject};
 use crate::error::ServiceError;
 use crate::users::{user_cmd, UserObject, Users};
 
@@ -27,8 +27,8 @@ pub enum Object {
 #[derive(Deserialize)]
 pub enum Command {
     Get(Object),
-    Insert(DBObject),
-    Update(DBObject),
+    Insert(DbObject),
+    Update(DbObject),
     Delete(Item),
     User(UserObject),
 }
@@ -37,12 +37,12 @@ pub enum Command {
 pub struct WebMsg {
     pub command: String,
     pub name: String,
-    pub object: DBObject,
+    pub object: DbObject,
     pub error: String,
 }
 
 impl WebMsg {
-    pub fn from_dbo(command: &str, name: String, dbo: Result<DBObject, ServiceError>) -> WebMsg {
+    pub fn from_dbo(command: &str, name: String, dbo: Result<DbObject, ServiceError>) -> WebMsg {
         match dbo {
             Ok(object) => WebMsg {
                 command: command.to_string(),
@@ -53,7 +53,7 @@ impl WebMsg {
             Err(err) => WebMsg {
                 command: command.to_string(),
                 name,
-                object: DBObject::Null,
+                object: DbObject::Null,
                 error: err.to_string(),
             },
         }
@@ -82,19 +82,19 @@ pub async fn jsonpost(
             dbobject.name(),
             Ok(insert_item(dbobject, &client)
                 .await
-                .map(|_| DBObject::Null)?),
+                .map(|_| DbObject::Null)?),
         ),
         Command::Update(dbobject) => WebMsg::from_dbo(
             "Update",
             dbobject.name(),
             Ok(update_item(dbobject, &client)
                 .await
-                .map(|_| DBObject::Null)?),
+                .map(|_| DbObject::Null)?),
         ),
         Command::Delete(item) => WebMsg::from_dbo(
             "Delete",
             item.name.clone(),
-            Ok(delete_item(&item, &client).await.map(|_| DBObject::Null)?),
+            Ok(delete_item(&item, &client).await.map(|_| DbObject::Null)?),
         ),
         Command::User(obj) => return user_cmd(obj, &client).await,
     };

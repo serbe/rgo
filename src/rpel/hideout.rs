@@ -1,7 +1,7 @@
 // package edc
 
 // // Hideout       - защитное сооружение
-// // ID            - номер в базе данных
+// // Id            - номер в базе данных
 // // Num           - Номер убежища в реестре имущества
 // // InvNum        - Инвентарный номер убежища
 // // InvAdd        - дополнительный код инвентарного номера убежища
@@ -142,7 +142,7 @@
 // 	if err != nil {
 // 		errmsg("CreateHideout insert", err)
 // 	}
-// 	return hideout.ID, err
+// 	return hideout.Id, err
 // }
 
 // // UpdateHideout - save hideout changes
