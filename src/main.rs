@@ -32,14 +32,6 @@ async fn run_warp() -> Result<()> {
     let json_users = warp::any().map(move || u3.clone());
     let json_length = warp::body::content_length_limit(1024 * 16);
 
-    // .allow_headers(vec![http::header::
-    //     "User-Agent",
-    //     "Sec-Fetch-Mode",
-    //     "Referer",
-    //     "Origin",
-    //     "Content-Type",
-    // ])
-
     let cors = warp::cors()
         .allow_origins(vec![
             "http://localhost:8080",
