@@ -2,21 +2,19 @@
 authors = ["Serbe <mkoctuk@gmail.com>"]
 edition = "2018"
 name = "rgo"
-version = "0.2.0"
+version = "0.2.1"
 
 [dependencies]
 chrono = {version = "0.4", features = ["serde"]}
-deadpool-postgres = "0.5"
+deadpool-postgres = "0.7"
 dotenv = "0.15"
 env_logger = "0.8"
-futures = "0.3"
-futures-util = "0.3"
 log = {version = "0.4", features = ["std"]}
 rand = "0.8"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
 thiserror = "1.0"
-tokio = {version = "0.2", features = ["io-util", "sync", "macros"]}
-tokio-postgres = {version = "0.5", features = ["with-chrono-0_4"]}
-warp = "0.2"
+tokio = {version = "1.5", features = ["io-util", "sync", "macros", "rt-multi-thread"]}
+tokio-postgres = {version = "0.7", features = ["with-chrono-0_4"]}
+warp = {version = "0.3", features = ["compression"]}

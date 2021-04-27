@@ -94,7 +94,7 @@
 // 	if err != nil {
 // 		errmsg("CreateHideoutType insert", err)
 // 	}
-// 	return hideoutType.ID, nil
+// 	return hideoutType.Id, nil
 // }
 
 // // UpdateHideoutType - save hideoutType changes

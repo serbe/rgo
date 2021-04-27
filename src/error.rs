@@ -7,23 +7,23 @@ pub enum ServiceError {
     #[error("Bad request: {0}")]
     BadRequest(String),
     #[error("IO Error: {0}")]
-    IOError(#[from] std::io::Error),
+    IoError(#[from] std::io::Error),
     #[error("Deadpool error: {0}")]
     PoolError(#[from] deadpool_postgres::PoolError),
     #[error("Serde JSON error: {0}")]
-    SJError(#[from] serde_json::error::Error),
+    SjError(#[from] serde_json::error::Error),
     #[error("Not auth")]
     NotAuth,
     #[error("Not permission")]
     NotPermission,
     #[error("error executing DB query: {0}")]
-    DBQueryError(#[from] tokio_postgres::Error),
+    DbQueryError(#[from] tokio_postgres::Error),
 }
 
 impl warp::reject::Reject for ServiceError {}
 
-impl From<ServiceError> for warp::Rejection {
-    fn from(error: ServiceError) -> warp::Rejection {
-        warp::reject::custom(error)
-    }
-}
+// impl From<ServiceError> for warp::Rejection {
+//     fn from(error: ServiceError) -> warp::Rejection {
+//         warp::reject::custom(error)
+//     }
+// }

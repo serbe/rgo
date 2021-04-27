@@ -32,11 +32,11 @@ pub enum UserObject {
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum DBUserObject {
+pub enum DbUserObject {
     Null,
     User(User),
     UserList(Vec<UserList>),
-    ID(i64),
+    Id(i64),
 }
 
 impl UserData {
@@ -101,7 +101,7 @@ impl Users {
 #[derive(Serialize, Deserialize)]
 pub struct WsUserMsg {
     pub command: String,
-    pub object: DBUserObject,
+    pub object: DbUserObject,
     pub error: String,
 }
 
@@ -109,7 +109,7 @@ impl WsUserMsg {
     fn from_get(object: User) -> Self {
         WsUserMsg {
             command: "Get".to_string(),
-            object: DBUserObject::User(object),
+            object: DbUserObject::User(object),
             error: String::new(),
         }
     }
@@ -117,7 +117,7 @@ impl WsUserMsg {
     fn from_list(object: Vec<UserList>) -> Self {
         WsUserMsg {
             command: "GetList".to_string(),
-            object: DBUserObject::UserList(object),
+            object: DbUserObject::UserList(object),
             error: String::new(),
         }
     }
@@ -125,7 +125,7 @@ impl WsUserMsg {
     fn from_insert(object: User) -> Self {
         WsUserMsg {
             command: "Insert".to_string(),
-            object: DBUserObject::ID(object.id),
+            object: DbUserObject::Id(object.id),
             error: String::new(),
         }
     }
@@ -133,7 +133,7 @@ impl WsUserMsg {
     fn from_update(object: u64) -> Self {
         WsUserMsg {
             command: "Update".to_string(),
-            object: DBUserObject::ID(object as i64),
+            object: DbUserObject::Id(object as i64),
             error: String::new(),
         }
     }
@@ -141,7 +141,7 @@ impl WsUserMsg {
     fn from_delete(object: u64) -> Self {
         WsUserMsg {
             command: "Delete".to_string(),
-            object: DBUserObject::ID(object as i64),
+            object: DbUserObject::Id(object as i64),
             error: String::new(),
         }
     }
