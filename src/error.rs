@@ -16,11 +16,21 @@ pub enum ServiceError {
     NotAuth,
     #[error("Not permission")]
     NotPermission,
-    #[error("error executing DB query: {0}")]
-    DbQueryError(#[from] tokio_postgres::Error),
+    #[error("Executing DB query: {0}")]
+    DbQuery(#[from] tokio_postgres::Error),
+    #[error("Empty DB name")]
+    EmptyDbName,
+    #[error("Hyper: {0}")]
+    Hyper(#[from] hyper::Error),
+    #[error("Create router: {0}")]
+    Router(String),
+    #[error("No get pool from state")]
+    NoPool,
+    #[error("No get users from state")]
+    NoUsers,
 }
 
-impl warp::reject::Reject for ServiceError {}
+// impl warp::reject::Reject for ServiceError {}
 
 // impl From<ServiceError> for warp::Rejection {
 //     fn from(error: ServiceError) -> warp::Rejection {
