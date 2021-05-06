@@ -21,9 +21,3 @@ pub enum ServiceError {
 }
 
 impl warp::reject::Reject for ServiceError {}
-
-// impl From<ServiceError> for warp::Rejection {
-//     fn from(error: ServiceError) -> warp::Rejection {
-//         warp::reject::custom(error)
-//     }
-// }
