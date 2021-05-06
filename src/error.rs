@@ -30,10 +30,4 @@ pub enum ServiceError {
     NoUsers,
 }
 
-// impl warp::reject::Reject for ServiceError {}
-
-// impl From<ServiceError> for warp::Rejection {
-//     fn from(error: ServiceError) -> warp::Rejection {
-//         warp::reject::custom(error)
-//     }
-// }
+impl warp::reject::Reject for ServiceError {}
