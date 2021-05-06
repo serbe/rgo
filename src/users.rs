@@ -147,16 +147,16 @@ impl WsUserMsg {
     }
 }
 
-// pub async fn user_cmd(
-//     obj: UserObject,
-//     client: &Client,
-// ) -> Result<warp::reply::Json, warp::Rejection> {
-//     let a = match obj {
-//         UserObject::Get(id) => WsUserMsg::from_get(User::get(&client, id).await?),
-//         UserObject::GetList => WsUserMsg::from_list(UserList::get_all(&client).await?),
-//         UserObject::Insert(item) => WsUserMsg::from_insert(User::insert(&client, item).await?),
-//         UserObject::Update(item) => WsUserMsg::from_update(User::update(&client, item).await?),
-//         UserObject::Delete(id) => WsUserMsg::from_delete(User::delete(&client, id).await?),
-//     };
-//     Ok(warp::reply::json(&a))
-// }
+pub async fn user_cmd(
+    obj: UserObject,
+    client: &Client,
+) -> Result<warp::reply::Json, warp::Rejection> {
+    let a = match obj {
+        UserObject::Get(id) => WsUserMsg::from_get(User::get(&client, id).await?),
+        UserObject::GetList => WsUserMsg::from_list(UserList::get_all(&client).await?),
+        UserObject::Insert(item) => WsUserMsg::from_insert(User::insert(&client, item).await?),
+        UserObject::Update(item) => WsUserMsg::from_update(User::update(&client, item).await?),
+        UserObject::Delete(id) => WsUserMsg::from_delete(User::delete(&client, id).await?),
+    };
+    Ok(warp::reply::json(&a))
+}
