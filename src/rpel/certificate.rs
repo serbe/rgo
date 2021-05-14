@@ -205,11 +205,7 @@ impl CertificateList {
                 contact_name: row.try_get(3)?,
                 company_id: row.try_get(4)?,
                 company_name: row.try_get(5)?,
-                cert_date: if let Some(d) = date {
-                    Some(d.format("%Y-%m-%d").to_string())
-                } else {
-                    None
-                },
+                cert_date: date.map(|d| d.format("%Y-%m-%d").to_string()),
                 note: row.try_get(7)?,
             });
         }

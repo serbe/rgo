@@ -209,16 +209,8 @@ impl EducationList {
                 contact_name: row.try_get(2)?,
                 start_date: row.try_get(3)?,
                 end_date: row.try_get(4)?,
-                start_str: if let Some(d) = start_str {
-                    Some(d.format("%Y-%m-%d").to_string())
-                } else {
-                    None
-                },
-                end_str: if let Some(d) = end_str {
-                    Some(d.format("%Y-%m-%d").to_string())
-                } else {
-                    None
-                },
+                start_str: start_str.map(|d| d.format("%Y-%m-%d").to_string()),
+                end_str: end_str.map(|d| d.format("%Y-%m-%d").to_string()),
                 post_id: row.try_get(5)?,
                 post_name: row.try_get(6)?,
                 note: row.try_get(7)?,

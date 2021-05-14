@@ -212,11 +212,7 @@ impl PracticeList {
                 kind_short_name: row.try_get(5)?,
                 date_of_practice: row.try_get(6)?,
                 topic: row.try_get(7)?,
-                date_str: if let Some(d) = date {
-                    Some(d.format("%d.%m.%y").to_string())
-                } else {
-                    None
-                },
+                date_str: date.map(|d| d.format("%Y-%m-%d").to_string()),
             });
         }
         Ok(practices)
@@ -263,11 +259,7 @@ impl PracticeList {
                 kind_short_name: row.try_get(5)?,
                 date_of_practice: row.try_get(6)?,
                 topic: row.try_get(7)?,
-                date_str: if let Some(d) = date {
-                    Some(d.format("%d.%m.%y").to_string())
-                } else {
-                    None
-                },
+                date_str: date.map(|d| d.format("%Y-%m-%d").to_string()),
             });
         }
         Ok(practices)
