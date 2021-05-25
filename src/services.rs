@@ -1,10 +1,14 @@
-use deadpool_postgres::Pool;
+use hyper::{body::to_bytes, Body, Request, Response};
+use routerify::ext::RequestExt;
 use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
 
-use crate::auth::check;
-use crate::dbo::{delete_item, get_item, get_list, insert_item, update_item, DBObject};
-use crate::error::ServiceError;
-use crate::users::{user_cmd, UserObject, Users};
+use crate::{
+    auth::check,
+    dbo::{delete_item, get_item, get_list, insert_item, update_item, DBObject},
+};
+use crate::{error::ServiceError, users::user_cmd};
+use crate::{users::UserObject, State};
 
 #[derive(Deserialize)]
 pub struct ClientMessage {
@@ -60,41 +64,42 @@ impl WsMsg {
     }
 }
 
-pub async fn jsonpost(
-    params: ClientMessage,
-    pool: Pool,
-    users: Users,
-) -> Result<warp::reply::Json, warp::Rejection> {
-    let msg: ClientMessage = params;
-    let cmd = check(&users, msg)?;
-    let client = pool.get().await.map_err(ServiceError::PoolError)?;
+pub async fn jsonpost(req: Request<Body>) -> Result<Response<Body>, ServiceError> {
+    let state = req.data::<State>().ok_or(ServiceError::NoState)?;
+    let users = state.users.clone();
+    let pool = &state.pool.clone();
+    let params: ClientMessage = serde_json::from_slice(&to_bytes(req).await?)?;
+    let cmd = check(&users, params)?;
     let msg = match cmd {
         Command::Get(object) => match object {
             Object::Item(item) => {
-                WsMsg::from_dbo("Get", item.name.clone(), get_item(&item, &client).await)
+                WsMsg::from_dbo("Get", item.name.clone(), get_item(&item, pool).await)
             }
-            Object::List(obj) => WsMsg::from_dbo("Get", obj.clone(), get_list(&obj, &client).await),
+            Object::List(obj) => WsMsg::from_dbo("Get", obj.clone(), get_list(&obj, pool).await),
         },
         Command::Insert(dbobject) => WsMsg::from_dbo(
             "Insert",
             dbobject.name(),
-            Ok(insert_item(dbobject, &client)
-                .await
-                .map(|_| DBObject::Null)?),
+            Ok(insert_item(dbobject, pool).await.map(|_| DBObject::Null)?),
         ),
         Command::Update(dbobject) => WsMsg::from_dbo(
             "Update",
             dbobject.name(),
-            Ok(update_item(dbobject, &client)
-                .await
-                .map(|_| DBObject::Null)?),
+            Ok(update_item(dbobject, pool).await.map(|_| DBObject::Null)?),
         ),
         Command::Delete(item) => WsMsg::from_dbo(
             "Delete",
             item.name.clone(),
-            Ok(delete_item(&item, &client).await.map(|_| DBObject::Null)?),
+            Ok(delete_item(&item, pool).await.map(|_| DBObject::Null)?),
         ),
-        Command::User(obj) => return user_cmd(obj, &client).await,
+        Command::User(obj) => return user_cmd(obj, pool).await,
     };
-    Ok(warp::reply::json(&msg))
+    Ok(json_response(json!(msg))?)
+}
+
+pub fn json_response(body: Value) -> Result<Response<Body>, ServiceError> {
+    Ok(Response::builder()
+        .header("Content-Type", "application/json")
+        .status(200)
+        .body(Body::from(body.to_string()))?)
 }

@@ -1,13 +1,16 @@
 use std::collections::HashMap;
 
-use deadpool_postgres::Client;
-use deadpool_postgres::Pool;
+use hyper::{Body, Response};
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
+use rpel::{
+    user::{User, UserList},
+    RpelPool,
+};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
-use crate::error::ServiceError;
-use crate::rpel::user::{User, UserList};
 use crate::services::Command;
+use crate::{error::ServiceError, services::json_response};
 
 #[derive(Clone)]
 pub struct Users {
@@ -60,10 +63,9 @@ impl UserData {
 }
 
 impl Users {
-    pub async fn new(pool: &Pool) -> Result<Users, ServiceError> {
+    pub async fn new(pool: &RpelPool) -> Result<Users, ServiceError> {
         let mut rng = thread_rng();
-        let client = pool.get().await?;
-        let users = UserList::get_all(&client).await?;
+        let users = UserList::get_all(pool).await?;
         let mut hash_map = HashMap::new();
         for user in users {
             let key = (&mut rng)
@@ -147,16 +149,13 @@ impl WsUserMsg {
     }
 }
 
-pub async fn user_cmd(
-    obj: UserObject,
-    client: &Client,
-) -> Result<warp::reply::Json, warp::Rejection> {
+pub async fn user_cmd(obj: UserObject, pool: &RpelPool) -> Result<Response<Body>, ServiceError> {
     let a = match obj {
-        UserObject::Get(id) => WsUserMsg::from_get(User::get(&client, id).await?),
-        UserObject::GetList => WsUserMsg::from_list(UserList::get_all(&client).await?),
-        UserObject::Insert(item) => WsUserMsg::from_insert(User::insert(&client, item).await?),
-        UserObject::Update(item) => WsUserMsg::from_update(User::update(&client, item).await?),
-        UserObject::Delete(id) => WsUserMsg::from_delete(User::delete(&client, id).await?),
+        UserObject::Get(id) => WsUserMsg::from_get(User::get(pool, id).await?),
+        UserObject::GetList => WsUserMsg::from_list(UserList::get_all(pool).await?),
+        UserObject::Insert(item) => WsUserMsg::from_insert(User::insert(pool, item).await?),
+        UserObject::Update(item) => WsUserMsg::from_update(User::update(pool, item).await?),
+        UserObject::Delete(id) => WsUserMsg::from_delete(User::delete(pool, id).await?),
     };
-    Ok(warp::reply::json(&a))
+    Ok(json_response(json!(a))?)
 }
