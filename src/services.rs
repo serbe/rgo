@@ -1,4 +1,8 @@
-use hyper::{body::to_bytes, Body, Request, Response};
+use hyper::{
+    body::to_bytes,
+    header::{self, HeaderValue},
+    Body, Request, Response,
+};
 use routerify::ext::RequestExt;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -102,4 +106,33 @@ pub fn json_response(body: Value) -> Result<Response<Body>, ServiceError> {
         .header("Content-Type", "application/json")
         .status(200)
         .body(Body::from(body.to_string()))?)
+}
+
+// pub fn enable_cors_all() -> Middleware<Body, ServiceError> {
+//     Middleware::post(enable_cors_all_middleware_handler)
+// }
+
+pub async fn enable_cors_all_middleware_handler(
+    mut res: Response<Body>,
+) -> Result<Response<Body>, ServiceError> {
+    let headers = res.headers_mut();
+
+    headers.insert(
+        header::ACCESS_CONTROL_ALLOW_ORIGIN,
+        HeaderValue::from_static("*"),
+    );
+    headers.insert(
+        header::ACCESS_CONTROL_ALLOW_METHODS,
+        HeaderValue::from_static("*"),
+    );
+    headers.insert(
+        header::ACCESS_CONTROL_ALLOW_HEADERS,
+        HeaderValue::from_static("*"),
+    );
+    headers.insert(
+        header::ACCESS_CONTROL_EXPOSE_HEADERS,
+        HeaderValue::from_static("*"),
+    );
+
+    Ok(res)
 }

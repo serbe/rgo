@@ -3,11 +3,11 @@ use std::net::SocketAddr;
 use env_logger::Env;
 use error::ServiceError;
 use hyper::Server;
-use routerify::{Router, RouterService};
+use routerify::{Middleware, Router, RouterService};
 use rpel::{get_pool, RpelPool};
 
 use auth::{check_auth, login};
-use services::jsonpost;
+use services::{enable_cors_all_middleware_handler, jsonpost};
 use users::Users;
 
 mod auth;
@@ -82,6 +82,7 @@ async fn run_server() -> Result<(), ServiceError> {
 
     let router = Router::builder()
         .data(State { pool, users })
+        .middleware(Middleware::post(enable_cors_all_middleware_handler))
         .post("go/check", check_auth)
         .post("go/login", login)
         .post("go/json", jsonpost)
