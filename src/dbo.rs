@@ -1,24 +1,26 @@
 use std::fmt;
 
-use deadpool_postgres::Client;
+use rpel::{
+    certificate::{Certificate, CertificateList},
+    company::{Company, CompanyList},
+    contact::{Contact, ContactList},
+    department::{Department, DepartmentList},
+    education::{Education, EducationList, EducationShort},
+    kind::{Kind, KindList},
+    post::{Post, PostList},
+    practice::{Practice, PracticeList, PracticeShort},
+    rank::{Rank, RankList},
+    scope::{Scope, ScopeList},
+    select::SelectItem,
+    siren::{Siren, SirenList},
+    siren_type::{SirenType, SirenTypeList},
+    user::{User, UserList},
+    RpelPool,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::error::ServiceError;
-use crate::rpel::certificate::{Certificate, CertificateList};
-use crate::rpel::company::{Company, CompanyList};
-use crate::rpel::contact::{Contact, ContactList};
-use crate::rpel::department::{Department, DepartmentList};
-use crate::rpel::education::{Education, EducationList, EducationShort};
-use crate::rpel::kind::{Kind, KindList};
-use crate::rpel::post::{Post, PostList};
-use crate::rpel::practice::{Practice, PracticeList, PracticeShort};
-use crate::rpel::rank::{Rank, RankList};
-use crate::rpel::scope::{Scope, ScopeList};
-use crate::rpel::select::SelectItem;
-use crate::rpel::siren::{Siren, SirenList};
-use crate::rpel::siren_type::{SirenType, SirenTypeList};
-use crate::rpel::user::{User, UserList};
-use crate::services::{Item, Object};
+use crate::messages::{Item, Object};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum DbObject {
@@ -100,25 +102,21 @@ impl fmt::Display for Object {
     }
 }
 
-pub async fn get_item(item: &Item, client: &Client) -> Result<DbObject, ServiceError> {
+pub async fn get_item(item: &Item, pool: &RpelPool) -> Result<DBObject, ServiceError> {
     match (item.name.as_str(), item.id) {
-        ("Certificate", id) => Ok(DbObject::Certificate(Certificate::get(&client, id).await?)),
-        ("Company", id) => Ok(DbObject::Company(Box::new(
-            Company::get(&client, id).await?,
-        ))),
-        ("Contact", id) => Ok(DbObject::Contact(Box::new(
-            Contact::get(&client, id).await?,
-        ))),
-        ("Department", id) => Ok(DbObject::Department(Department::get(&client, id).await?)),
-        ("Education", id) => Ok(DbObject::Education(Education::get(&client, id).await?)),
-        ("Kind", id) => Ok(DbObject::Kind(Kind::get(&client, id).await?)),
-        ("Post", id) => Ok(DbObject::Post(Post::get(&client, id).await?)),
-        ("Practice", id) => Ok(DbObject::Practice(Practice::get(&client, id).await?)),
-        ("Rank", id) => Ok(DbObject::Rank(Rank::get(&client, id).await?)),
-        ("Scope", id) => Ok(DbObject::Scope(Scope::get(&client, id).await?)),
-        ("Siren", id) => Ok(DbObject::Siren(Box::new(Siren::get(&client, id).await?))),
-        ("SirenType", id) => Ok(DbObject::SirenType(SirenType::get(&client, id).await?)),
-        ("User", id) => Ok(DbObject::User(User::get(&client, id).await?)),
+        ("Certificate", id) => Ok(DBObject::Certificate(Certificate::get(pool, id).await?)),
+        ("Company", id) => Ok(DBObject::Company(Box::new(Company::get(pool, id).await?))),
+        ("Contact", id) => Ok(DBObject::Contact(Box::new(Contact::get(pool, id).await?))),
+        ("Department", id) => Ok(DBObject::Department(Department::get(pool, id).await?)),
+        ("Education", id) => Ok(DBObject::Education(Education::get(pool, id).await?)),
+        ("Kind", id) => Ok(DBObject::Kind(Kind::get(pool, id).await?)),
+        ("Post", id) => Ok(DBObject::Post(Post::get(pool, id).await?)),
+        ("Practice", id) => Ok(DBObject::Practice(Practice::get(pool, id).await?)),
+        ("Rank", id) => Ok(DBObject::Rank(Rank::get(pool, id).await?)),
+        ("Scope", id) => Ok(DBObject::Scope(Scope::get(pool, id).await?)),
+        ("Siren", id) => Ok(DBObject::Siren(Box::new(Siren::get(pool, id).await?))),
+        ("SirenType", id) => Ok(DBObject::SirenType(SirenType::get(pool, id).await?)),
+        ("User", id) => Ok(DBObject::User(User::get(pool, id).await?)),
         (e, id) => Err(ServiceError::BadRequest(format!(
             "bad item object: {} {}",
             e, id
@@ -126,119 +124,109 @@ pub async fn get_item(item: &Item, client: &Client) -> Result<DbObject, ServiceE
     }
 }
 
-pub async fn get_list(name: &str, client: &Client) -> Result<DbObject, ServiceError> {
+pub async fn get_list(name: &str, pool: &RpelPool) -> Result<DBObject, ServiceError> {
     match name {
-        "CertificateList" => Ok(DbObject::CertificateList(
-            CertificateList::get_all(&client).await?,
+        "CertificateList" => Ok(DBObject::CertificateList(
+            CertificateList::get_all(pool).await?,
         )),
-        "CompanyList" => Ok(DbObject::CompanyList(CompanyList::get_all(&client).await?)),
-        "CompanySelect" => Ok(DbObject::SelectItem(
-            SelectItem::company_all(&client).await?,
+        "CompanyList" => Ok(DBObject::CompanyList(CompanyList::get_all(pool).await?)),
+        "CompanySelect" => Ok(DBObject::SelectItem(SelectItem::company_all(pool).await?)),
+        "ContactList" => Ok(DBObject::ContactList(ContactList::get_all(pool).await?)),
+        "ContactSelect" => Ok(DBObject::SelectItem(SelectItem::contact_all(pool).await?)),
+        "DepartmentList" => Ok(DBObject::DepartmentList(
+            DepartmentList::get_all(pool).await?,
         )),
-        "ContactList" => Ok(DbObject::ContactList(ContactList::get_all(&client).await?)),
-        "ContactSelect" => Ok(DbObject::SelectItem(
-            SelectItem::contact_all(&client).await?,
+        "DepartmentSelect" => Ok(DBObject::SelectItem(
+            SelectItem::department_all(pool).await?,
         )),
-        "DepartmentList" => Ok(DbObject::DepartmentList(
-            DepartmentList::get_all(&client).await?,
-        )),
-        "DepartmentSelect" => Ok(DbObject::SelectItem(
-            SelectItem::department_all(&client).await?,
-        )),
-        "EducationList" => Ok(DbObject::EducationList(
-            EducationList::get_all(&client).await?,
-        )),
-        "EducationNear" => Ok(DbObject::EducationShort(
-            EducationShort::get_near(&client).await?,
+        "EducationList" => Ok(DBObject::EducationList(EducationList::get_all(pool).await?)),
+        "EducationNear" => Ok(DBObject::EducationShort(
+            EducationShort::get_near(pool).await?,
         )),
         // "EducationShort" =>
-        "KindList" => Ok(DbObject::KindList(KindList::get_all(&client).await?)),
-        "KindSelect" => Ok(DbObject::SelectItem(SelectItem::kind_all(&client).await?)),
-        "PostList" => Ok(DbObject::PostList(PostList::get_all(&client).await?)),
-        "PostSelect" => Ok(DbObject::SelectItem(
-            SelectItem::post_all(&client, false).await?,
+        "KindList" => Ok(DBObject::KindList(KindList::get_all(pool).await?)),
+        "KindSelect" => Ok(DBObject::SelectItem(SelectItem::kind_all(pool).await?)),
+        "PostList" => Ok(DBObject::PostList(PostList::get_all(pool).await?)),
+        "PostSelect" => Ok(DBObject::SelectItem(
+            SelectItem::post_all(pool, false).await?,
         )),
-        "PostGoSelect" => Ok(DbObject::SelectItem(
-            SelectItem::post_all(&client, true).await?,
+        "PostGoSelect" => Ok(DBObject::SelectItem(
+            SelectItem::post_all(pool, true).await?,
         )),
-        "PracticeList" => Ok(DbObject::PracticeList(
-            PracticeList::get_all(&client).await?,
-        )),
-        "PracticeNear" => Ok(DbObject::PracticeShort(
-            PracticeShort::get_near(&client).await?,
+        "PracticeList" => Ok(DBObject::PracticeList(PracticeList::get_all(pool).await?)),
+        "PracticeNear" => Ok(DBObject::PracticeShort(
+            PracticeShort::get_near(pool).await?,
         )),
         // "PracticeShort" =>
-        "RankList" => Ok(DbObject::RankList(RankList::get_all(&client).await?)),
-        "RankSelect" => Ok(DbObject::SelectItem(SelectItem::rank_all(&client).await?)),
-        "ScopeList" => Ok(DbObject::ScopeList(ScopeList::get_all(&client).await?)),
-        "ScopeSelect" => Ok(DbObject::SelectItem(SelectItem::scope_all(&client).await?)),
+        "RankList" => Ok(DBObject::RankList(RankList::get_all(pool).await?)),
+        "RankSelect" => Ok(DBObject::SelectItem(SelectItem::rank_all(pool).await?)),
+        "ScopeList" => Ok(DBObject::ScopeList(ScopeList::get_all(pool).await?)),
+        "ScopeSelect" => Ok(DBObject::SelectItem(SelectItem::scope_all(pool).await?)),
         // "SelectItem" =>
-        "SirenList" => Ok(DbObject::SirenList(SirenList::get_all(&client).await?)),
-        "SirenTypeList" => Ok(DbObject::SirenTypeList(
-            SirenTypeList::get_all(&client).await?,
+        "SirenList" => Ok(DBObject::SirenList(SirenList::get_all(pool).await?)),
+        "SirenTypeList" => Ok(DBObject::SirenTypeList(SirenTypeList::get_all(pool).await?)),
+        "SirenTypeSelect" => Ok(DBObject::SelectItem(
+            SelectItem::siren_type_all(pool).await?,
         )),
-        "SirenTypeSelect" => Ok(DbObject::SelectItem(
-            SelectItem::siren_type_all(&client).await?,
-        )),
-        "UserList" => Ok(DbObject::UserList(UserList::get_all(&client).await?)),
+        "UserList" => Ok(DBObject::UserList(UserList::get_all(pool).await?)),
         e => Err(ServiceError::BadRequest(format!("bad list object: {}", e))),
     }
 }
 
-pub async fn insert_item(object: DbObject, client: &Client) -> Result<i64, ServiceError> {
+pub async fn insert_item(object: DBObject, pool: &RpelPool) -> Result<i64, ServiceError> {
     match object {
-        DbObject::Certificate(item) => Ok(Certificate::insert(&client, item).await?.id),
-        DbObject::Company(item) => Ok(Company::insert(&client, *item).await?.id),
-        DbObject::Contact(item) => Ok(Contact::insert(&client, *item).await?.id),
-        DbObject::Department(item) => Ok(Department::insert(&client, item).await?.id),
-        DbObject::Education(item) => Ok(Education::insert(&client, item).await?.id),
-        DbObject::Kind(item) => Ok(Kind::insert(&client, item).await?.id),
-        DbObject::Post(item) => Ok(Post::insert(&client, item).await?.id),
-        DbObject::Practice(item) => Ok(Practice::insert(&client, item).await?.id),
-        DbObject::Rank(item) => Ok(Rank::insert(&client, item).await?.id),
-        DbObject::Scope(item) => Ok(Scope::insert(&client, item).await?.id),
-        DbObject::Siren(item) => Ok(Siren::insert(&client, *item).await?.id),
-        DbObject::SirenType(item) => Ok(SirenType::insert(&client, item).await?.id),
-        DbObject::User(item) => Ok(User::insert(&client, item).await?.id),
+        DBObject::Certificate(item) => Ok(Certificate::insert(pool, item).await?.id),
+        DBObject::Company(item) => Ok(Company::insert(pool, *item).await?.id),
+        DBObject::Contact(item) => Ok(Contact::insert(pool, *item).await?.id),
+        DBObject::Department(item) => Ok(Department::insert(pool, item).await?.id),
+        DBObject::Education(item) => Ok(Education::insert(pool, item).await?.id),
+        DBObject::Kind(item) => Ok(Kind::insert(pool, item).await?.id),
+        DBObject::Post(item) => Ok(Post::insert(pool, item).await?.id),
+        DBObject::Practice(item) => Ok(Practice::insert(pool, item).await?.id),
+        DBObject::Rank(item) => Ok(Rank::insert(pool, item).await?.id),
+        DBObject::Scope(item) => Ok(Scope::insert(pool, item).await?.id),
+        DBObject::Siren(item) => Ok(Siren::insert(pool, *item).await?.id),
+        DBObject::SirenType(item) => Ok(SirenType::insert(pool, item).await?.id),
+        DBObject::User(item) => Ok(User::insert(pool, item).await?.id),
         _ => Err(ServiceError::BadRequest("bad item object".to_string())),
     }
 }
 
-pub async fn update_item(object: DbObject, client: &Client) -> Result<i64, ServiceError> {
+pub async fn update_item(object: DBObject, pool: &RpelPool) -> Result<i64, ServiceError> {
     let res = match object {
-        DbObject::Certificate(item) => Certificate::update(&client, item).await,
-        DbObject::Company(item) => Company::update(&client, *item).await,
-        DbObject::Contact(item) => Contact::update(&client, *item).await,
-        DbObject::Department(item) => Department::update(&client, item).await,
-        DbObject::Education(item) => Education::update(&client, item).await,
-        DbObject::Kind(item) => Kind::update(&client, item).await,
-        DbObject::Post(item) => Post::update(&client, item).await,
-        DbObject::Practice(item) => Practice::update(&client, item).await,
-        DbObject::Rank(item) => Rank::update(&client, item).await,
-        DbObject::Scope(item) => Scope::update(&client, item).await,
-        DbObject::Siren(item) => Siren::update(&client, *item).await,
-        DbObject::SirenType(item) => SirenType::update(&client, item).await,
-        DbObject::User(item) => User::update(&client, item).await,
+        DBObject::Certificate(item) => Certificate::update(pool, item).await,
+        DBObject::Company(item) => Company::update(pool, *item).await,
+        DBObject::Contact(item) => Contact::update(pool, *item).await,
+        DBObject::Department(item) => Department::update(pool, item).await,
+        DBObject::Education(item) => Education::update(pool, item).await,
+        DBObject::Kind(item) => Kind::update(pool, item).await,
+        DBObject::Post(item) => Post::update(pool, item).await,
+        DBObject::Practice(item) => Practice::update(pool, item).await,
+        DBObject::Rank(item) => Rank::update(pool, item).await,
+        DBObject::Scope(item) => Scope::update(pool, item).await,
+        DBObject::Siren(item) => Siren::update(pool, *item).await,
+        DBObject::SirenType(item) => SirenType::update(pool, item).await,
+        DBObject::User(item) => User::update(pool, item).await,
         _ => return Err(ServiceError::BadRequest("bad item object".to_string())),
     }?;
     Ok(res as i64)
 }
 
-pub async fn delete_item(item: &Item, client: &Client) -> Result<i64, ServiceError> {
+pub async fn delete_item(item: &Item, pool: &RpelPool) -> Result<i64, ServiceError> {
     let res = match item.name.as_str() {
-        "Certificate" => Certificate::delete(client, item.id).await,
-        "Company" => Company::delete(client, item.id).await,
-        "Contact" => Contact::delete(client, item.id).await,
-        "Department" => Department::delete(client, item.id).await,
-        "Education" => Education::delete(client, item.id).await,
-        "Kind" => Kind::delete(client, item.id).await,
-        "Post" => Post::delete(client, item.id).await,
-        "Practice" => Practice::delete(client, item.id).await,
-        "Rank" => Rank::delete(client, item.id).await,
-        "Scope" => Scope::delete(client, item.id).await,
-        "Siren" => Siren::delete(client, item.id).await,
-        "Siren_type" => SirenType::delete(client, item.id).await,
-        "User" => User::delete(client, item.id).await,
+        "Certificate" => Certificate::delete(pool, item.id).await,
+        "Company" => Company::delete(pool, item.id).await,
+        "Contact" => Contact::delete(pool, item.id).await,
+        "Department" => Department::delete(pool, item.id).await,
+        "Education" => Education::delete(pool, item.id).await,
+        "Kind" => Kind::delete(pool, item.id).await,
+        "Post" => Post::delete(pool, item.id).await,
+        "Practice" => Practice::delete(pool, item.id).await,
+        "Rank" => Rank::delete(pool, item.id).await,
+        "Scope" => Scope::delete(pool, item.id).await,
+        "Siren" => Siren::delete(pool, item.id).await,
+        "Siren_type" => SirenType::delete(pool, item.id).await,
+        "User" => User::delete(pool, item.id).await,
         _ => {
             return Err(ServiceError::BadRequest(format!(
                 "bad path {:?}",

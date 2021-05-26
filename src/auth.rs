@@ -1,45 +1,24 @@
 use serde::{Deserialize, Serialize};
 
 use crate::error::ServiceError;
-use crate::services::{ClientMessage, Command};
+use crate::messages::{ClientMessage, Command};
 use crate::users::Users;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Auth {
-    u: String,
-    p: String,
+    pub u: String,
+    pub p: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct A {
-    t: String,
-    r: i64,
+    pub t: String,
+    pub r: i64,
 }
 
 #[derive(Serialize)]
-struct C {
-    r: bool,
-}
-
-pub async fn login(params: Auth, users: Users) -> Result<warp::reply::Json, warp::Rejection> {
-    let reply = users
-        .get_reply(&params.u, &params.p)
-        .ok_or_else(warp::reject::not_found)?;
-    Ok(warp::reply::json(&A {
-        t: reply.0,
-        r: reply.1,
-    }))
-}
-
-pub async fn check_auth(
-    params: A,
-    users: Users,
-) -> std::result::Result<warp::reply::Json, warp::Rejection> {
-    let result = users
-        .get_user(&params.t)
-        .map(|u| u.role == params.r)
-        .map_or(false, |v| v);
-    Ok(warp::reply::json(&C { r: result }))
+pub struct C {
+    pub r: bool,
 }
 
 pub fn check(users: &Users, message: ClientMessage) -> Result<Command, ServiceError> {

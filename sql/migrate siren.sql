@@ -1,1 +1,0 @@
-ALTER TABLE sirens RENAME COLUMN type_id TO siren_type_id;
