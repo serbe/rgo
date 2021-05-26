@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{dbo::DBObject, error::ServiceError, users::UserObject};
+use crate::{dbo::DbObject, error::ServiceError, users::UserObject};
 
 #[derive(Deserialize)]
 pub struct ClientMessage {
@@ -23,8 +23,8 @@ pub enum Object {
 #[derive(Deserialize)]
 pub enum Command {
     Get(Object),
-    Insert(DBObject),
-    Update(DBObject),
+    Insert(DbObject),
+    Update(DbObject),
     Delete(Item),
     User(UserObject),
 }
@@ -33,12 +33,12 @@ pub enum Command {
 pub struct WsMsg {
     pub command: String,
     pub name: String,
-    pub object: DBObject,
+    pub object: DbObject,
     pub error: String,
 }
 
 impl WsMsg {
-    pub fn from_dbo(command: &str, name: String, dbo: Result<DBObject, ServiceError>) -> WsMsg {
+    pub fn from_dbo(command: &str, name: String, dbo: Result<DbObject, ServiceError>) -> WsMsg {
         match dbo {
             Ok(object) => WsMsg {
                 command: command.to_string(),
@@ -49,7 +49,7 @@ impl WsMsg {
             Err(err) => WsMsg {
                 command: command.to_string(),
                 name,
-                object: DBObject::Null,
+                object: DbObject::Null,
                 error: err.to_string(),
             },
         }
