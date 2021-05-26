@@ -9,7 +9,7 @@ use rpel::{
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::services::Command;
+use crate::messages::Command;
 use crate::{error::ServiceError, services::json_response};
 
 #[derive(Clone)]

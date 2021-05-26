@@ -5,75 +5,24 @@ use hyper::{
 };
 use log::debug;
 use routerify::ext::RequestExt;
-use serde::{Deserialize, Serialize};
-use serde_json::{json, Value};
+use serde_json::{from_slice, json, Value};
 
 use crate::{
-    auth::check,
+    auth::{check, C},
     dbo::{delete_item, get_item, get_list, insert_item, update_item, DBObject},
+    messages::{ClientMessage, Command, Object, WsMsg},
+};
+use crate::{
+    auth::{Auth, A},
+    State,
 };
 use crate::{error::ServiceError, users::user_cmd};
-use crate::{users::UserObject, State};
-
-#[derive(Deserialize)]
-pub struct ClientMessage {
-    pub command: Command,
-    pub addon: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Item {
-    pub name: String,
-    pub id: i64,
-}
-
-#[derive(Deserialize)]
-pub enum Object {
-    Item(Item),
-    List(String),
-}
-
-#[derive(Deserialize)]
-pub enum Command {
-    Get(Object),
-    Insert(DBObject),
-    Update(DBObject),
-    Delete(Item),
-    User(UserObject),
-}
-
-#[derive(Serialize)]
-pub struct WsMsg {
-    pub command: String,
-    pub name: String,
-    pub object: DBObject,
-    pub error: String,
-}
-
-impl WsMsg {
-    pub fn from_dbo(command: &str, name: String, dbo: Result<DBObject, ServiceError>) -> WsMsg {
-        match dbo {
-            Ok(object) => WsMsg {
-                command: command.to_string(),
-                name,
-                object,
-                error: String::new(),
-            },
-            Err(err) => WsMsg {
-                command: command.to_string(),
-                name,
-                object: DBObject::Null,
-                error: err.to_string(),
-            },
-        }
-    }
-}
 
 pub async fn jsonpost(req: Request<Body>) -> Result<Response<Body>, ServiceError> {
     let state = req.data::<State>().ok_or(ServiceError::NoState)?;
     let users = state.users.clone();
     let pool = &state.pool.clone();
-    let params: ClientMessage = serde_json::from_slice(&to_bytes(req).await?)?;
+    let params: ClientMessage = from_slice(&to_bytes(req).await?)?;
     let cmd = check(&users, params)?;
     let msg = match cmd {
         Command::Get(object) => match object {
@@ -132,15 +81,46 @@ pub async fn enable_cors_all_middleware_handler(
         header::ACCESS_CONTROL_ALLOW_HEADERS,
         HeaderValue::from_static("*"),
     );
-    // headers.insert(
-    //     header::ACCESS_CONTROL_EXPOSE_HEADERS,
-    //     HeaderValue::from_static("*"),
-    // );
 
     Ok(res)
 }
 
 pub async fn logger(req: Request<Body>) -> Result<Request<Body>, ServiceError> {
-    debug!("{} {} {}", req.remote_addr(), req.method(), req.uri().path());
+    debug!(
+        "{} {} {}",
+        req.remote_addr(),
+        req.method(),
+        req.uri().path()
+    );
     Ok(req)
+}
+
+pub async fn check_auth(req: Request<Body>) -> Result<Response<Body>, ServiceError> {
+    let users = req
+        .data::<State>()
+        .ok_or(ServiceError::NoState)?
+        .users
+        .clone();
+    let params: A = serde_json::from_slice(&to_bytes(req).await?)?;
+    let result = users
+        .get_user(&params.t)
+        .map(|u| u.role == params.r)
+        .map_or(false, |v| v);
+    Ok(json_response(json!(&C { r: result }))?)
+}
+
+pub async fn login(req: Request<Body>) -> Result<Response<Body>, ServiceError> {
+    let users = req
+        .data::<State>()
+        .ok_or(ServiceError::NoState)?
+        .users
+        .clone();
+    let params: Auth = serde_json::from_slice(&to_bytes(req).await?)?;
+    let reply = users
+        .get_reply(&params.u, &params.p)
+        .ok_or(ServiceError::NotAuth)?;
+    Ok(json_response(json!(&A {
+        t: reply.0,
+        r: reply.1,
+    }))?)
 }

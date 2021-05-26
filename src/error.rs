@@ -29,14 +29,6 @@ pub enum ServiceError {
                                                            // DBQueryError(#[from] tokio_postgres::Error)
 }
 
-// impl warp::reject::Reject for ServiceError {}
-
-// impl From<ServiceError> for warp::Rejection {
-//     fn from(error: ServiceError) -> warp::Rejection {
-//         warp::reject::custom(error)
-//     }
-// }
-
 // impl From<ServiceError> for hyper::Response<()> {
 //     fn from(error: ServiceError) -> hyper::Response<()> {
 //         match error {

@@ -6,13 +6,13 @@ use hyper::Server;
 use routerify::{Middleware, Router, RouterService};
 use rpel::{get_pool, RpelPool};
 
-use auth::{check_auth, login};
-use services::{enable_cors_all_middleware_handler, jsonpost, logger};
+use services::{check_auth, enable_cors_all_middleware_handler, jsonpost, logger, login};
 use users::Users;
 
 mod auth;
 mod dbo;
 mod error;
+mod messages;
 mod services;
 mod users;
 

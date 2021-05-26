@@ -20,7 +20,7 @@ use rpel::{
 use serde::{Deserialize, Serialize};
 
 use crate::error::ServiceError;
-use crate::services::{Item, Object};
+use crate::messages::{Item, Object};
 
 #[derive(Deserialize, Serialize)]
 pub enum DBObject {
