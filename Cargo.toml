@@ -12,9 +12,9 @@ hyper = {version = "0.14", features = ["http1", "server"]}
 log = {version = "0.4", features = ["std"]}
 rand = "0.8"
 routerify = "2.1"
-rpel = {version = "0.4.3", git = "https://github.com/serbe/rpel"}
+rpel = {version = "0.4", git = "https://github.com/serbe/rpel"}
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
 thiserror = "1.0"
-tokio = {version = "1.7", features = ["io-util", "sync", "rt-multi-thread"]}
+tokio = {version = "1", features = ["io-util", "sync", "rt-multi-thread"]}
