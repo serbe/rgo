@@ -70,6 +70,7 @@ pub async fn enable_cors_all_middleware_handler(
     headers.insert(
         header::ACCESS_CONTROL_ALLOW_ORIGIN,
         HeaderValue::from_static("*"),
+        // HeaderValue::from_static("http://localhost:3000"),
     );
     // HeaderValue::from_static("http://localhost:3000"),
     // http://localhost:3000, chrome-extension://bnmefgocpeggmnpkglmkfoidibbcogcf, moz-extension://4b800887-ba22-4cb5-a284-41421b565e0e
@@ -81,6 +82,7 @@ pub async fn enable_cors_all_middleware_handler(
         header::ACCESS_CONTROL_ALLOW_HEADERS,
         HeaderValue::from_static("*"),
     );
+    // debug!("{:?}", headers);
 
     Ok(res)
 }
