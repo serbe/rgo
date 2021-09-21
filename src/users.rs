@@ -27,11 +27,11 @@ pub struct UserData {
 
 #[derive(Serialize, Deserialize)]
 pub enum UserObject {
-    Get(i64),
-    GetList,
-    Insert(User),
-    Update(User),
-    Delete(i64),
+    GetUser(i64),
+    GetUserList,
+    InsertUser(User),
+    UpdateUser(User),
+    DeleteUser(i64),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -45,15 +45,16 @@ pub enum DbUserObject {
 impl UserData {
     pub fn permissions(&self, command: Command) -> Result<Command, ServiceError> {
         if match &command {
-            Command::Get(_) => self.role >> 1 > 0,
-            Command::Insert(_) => self.role >> 2 > 0,
-            Command::Update(_) => self.role >> 3 > 0,
-            Command::Delete(_) => self.role >> 4 > 0,
-            Command::User(UserObject::Get(_)) => self.role >> 5 > 0,
-            Command::User(UserObject::GetList) => self.role >> 5 > 0,
-            Command::User(UserObject::Insert(_)) => self.role >> 6 > 0,
-            Command::User(UserObject::Update(_)) => self.role >> 7 > 0,
-            Command::User(UserObject::Delete(_)) => self.role >> 8 > 0,
+            Command::GetItem(_) => self.role >> 1 > 0,
+            Command::GetList(_) => self.role >> 2 > 0,
+            Command::InsertItem(_) => self.role >> 3 > 0,
+            Command::UpdateItem(_) => self.role >> 4 > 0,
+            Command::DeleteItem(_) => self.role >> 5 > 0,
+            Command::User(UserObject::GetUser(_)) => self.role >> 6 > 0,
+            Command::User(UserObject::GetUserList) => self.role >> 6 > 0,
+            Command::User(UserObject::InsertUser(_)) => self.role >> 7 > 0,
+            Command::User(UserObject::UpdateUser(_)) => self.role >> 8 > 0,
+            Command::User(UserObject::DeleteUser(_)) => self.role >> 9 > 0,
         } {
             Ok(command)
         } else {
@@ -110,7 +111,7 @@ pub struct WsUserMsg {
 impl WsUserMsg {
     fn from_get(object: User) -> Self {
         WsUserMsg {
-            command: "Get".to_string(),
+            command: "GetUser".to_string(),
             object: DbUserObject::User(object),
             error: String::new(),
         }
@@ -118,7 +119,7 @@ impl WsUserMsg {
 
     fn from_list(object: Vec<UserList>) -> Self {
         WsUserMsg {
-            command: "GetList".to_string(),
+            command: "GetUserList".to_string(),
             object: DbUserObject::UserList(object),
             error: String::new(),
         }
@@ -126,7 +127,7 @@ impl WsUserMsg {
 
     fn from_insert(object: User) -> Self {
         WsUserMsg {
-            command: "Insert".to_string(),
+            command: "InsertUser".to_string(),
             object: DbUserObject::Id(object.id),
             error: String::new(),
         }
@@ -134,7 +135,7 @@ impl WsUserMsg {
 
     fn from_update(object: u64) -> Self {
         WsUserMsg {
-            command: "Update".to_string(),
+            command: "UpdateUser".to_string(),
             object: DbUserObject::Id(object as i64),
             error: String::new(),
         }
@@ -142,7 +143,7 @@ impl WsUserMsg {
 
     fn from_delete(object: u64) -> Self {
         WsUserMsg {
-            command: "Delete".to_string(),
+            command: "DeleteUser".to_string(),
             object: DbUserObject::Id(object as i64),
             error: String::new(),
         }
@@ -151,11 +152,11 @@ impl WsUserMsg {
 
 pub async fn user_cmd(obj: UserObject, pool: &RpelPool) -> Result<Response<Body>, ServiceError> {
     let a = match obj {
-        UserObject::Get(id) => WsUserMsg::from_get(User::get(pool, id).await?),
-        UserObject::GetList => WsUserMsg::from_list(UserList::get_all(pool).await?),
-        UserObject::Insert(item) => WsUserMsg::from_insert(User::insert(pool, item).await?),
-        UserObject::Update(item) => WsUserMsg::from_update(User::update(pool, item).await?),
-        UserObject::Delete(id) => WsUserMsg::from_delete(User::delete(pool, id).await?),
+        UserObject::GetUser(id) => WsUserMsg::from_get(User::get(pool, id).await?),
+        UserObject::GetUserList => WsUserMsg::from_list(UserList::get_all(pool).await?),
+        UserObject::InsertUser(item) => WsUserMsg::from_insert(User::insert(pool, item).await?),
+        UserObject::UpdateUser(item) => WsUserMsg::from_update(User::update(pool, item).await?),
+        UserObject::DeleteUser(id) => WsUserMsg::from_delete(User::delete(pool, id).await?),
     };
     Ok(json_response(json!(a))?)
 }

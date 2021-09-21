@@ -15,17 +15,12 @@ pub struct Item {
 }
 
 #[derive(Deserialize)]
-pub enum Object {
-    Item(Item),
-    List(String),
-}
-
-#[derive(Deserialize)]
 pub enum Command {
-    Get(Object),
-    Insert(DbObject),
-    Update(DbObject),
-    Delete(Item),
+    GetItem(Item),
+    GetList(String),
+    InsertItem(DbObject),
+    UpdateItem(DbObject),
+    DeleteItem(Item),
     User(UserObject),
 }
 

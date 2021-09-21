@@ -10,7 +10,7 @@ use serde_json::{from_slice, json, Value};
 use crate::{
     auth::{check, C},
     dbo::{delete_item, get_item, get_list, insert_item, update_item, DbObject},
-    messages::{ClientMessage, Command, Object, WsMsg},
+    messages::{ClientMessage, Command, WsMsg},
 };
 use crate::{
     auth::{Auth, A},
@@ -25,24 +25,24 @@ pub async fn jsonpost(req: Request<Body>) -> Result<Response<Body>, ServiceError
     let params: ClientMessage = from_slice(&to_bytes(req).await?)?;
     let cmd = check(&users, params)?;
     let msg = match cmd {
-        Command::Get(object) => match object {
-            Object::Item(item) => {
-                WsMsg::from_dbo("Get", item.name.clone(), get_item(&item, pool).await)
-            }
-            Object::List(obj) => WsMsg::from_dbo("Get", obj.clone(), get_list(&obj, pool).await),
-        },
-        Command::Insert(dbobject) => WsMsg::from_dbo(
-            "Insert",
+        Command::GetItem(item) => {
+            WsMsg::from_dbo("GetItem", item.name.clone(), get_item(&item, pool).await)
+        }
+        Command::GetList(list) => {
+            WsMsg::from_dbo("GetList", list.clone(), get_list(&list, pool).await)
+        }
+        Command::InsertItem(dbobject) => WsMsg::from_dbo(
+            "InsertItem",
             dbobject.name(),
             Ok(insert_item(dbobject, pool).await.map(|_| DbObject::Null)?),
         ),
-        Command::Update(dbobject) => WsMsg::from_dbo(
-            "Update",
+        Command::UpdateItem(dbobject) => WsMsg::from_dbo(
+            "UpdateItem",
             dbobject.name(),
             Ok(update_item(dbobject, pool).await.map(|_| DbObject::Null)?),
         ),
-        Command::Delete(item) => WsMsg::from_dbo(
-            "Delete",
+        Command::DeleteItem(item) => WsMsg::from_dbo(
+            "DeleteItem",
             item.name.clone(),
             Ok(delete_item(&item, pool).await.map(|_| DbObject::Null)?),
         ),

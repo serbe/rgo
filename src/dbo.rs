@@ -1,5 +1,3 @@
-use std::fmt;
-
 use rpel::{
     certificate::{Certificate, CertificateList},
     company::{Company, CompanyList},
@@ -20,7 +18,7 @@ use rpel::{
 use serde::{Deserialize, Serialize};
 
 use crate::error::ServiceError;
-use crate::messages::{Item, Object};
+use crate::messages::Item;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub enum DbObject {
@@ -89,15 +87,6 @@ impl DbObject {
             DbObject::SirenTypeList(_) => String::from("SirenTypeList"),
             DbObject::User(_) => String::from("User"),
             DbObject::UserList(_) => String::from("UserList"),
-        }
-    }
-}
-
-impl fmt::Display for Object {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Object::Item(i) => write!(f, "Item {} {}", i.id, i.name),
-            Object::List(s) => write!(f, "List {}", s),
         }
     }
 }
