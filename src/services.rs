@@ -22,7 +22,7 @@ pub async fn jsonpost(req: Request<Body>) -> Result<Response<Body>, ServiceError
     let state = req.data::<State>().ok_or(ServiceError::NoState)?;
     let users = state.users.clone();
     let pool = &state.pool.clone();
-    let params: ClientMessage = from_slice(&to_bytes(req).await?)?;
+    let params: ClientMessage = from_slice(dbg!(&to_bytes(req).await?))?;
     let cmd = check(&users, params)?;
     let msg = match cmd {
         Command::GetItem(item) => {
@@ -117,10 +117,8 @@ pub async fn login(req: Request<Body>) -> Result<Response<Body>, ServiceError> {
         .ok_or(ServiceError::NoState)?
         .users
         .clone();
-    let params: Auth = serde_json::from_slice(&to_bytes(req).await?)?;
-    let reply = users
-        .get_reply(&params.u, &params.p)
-        .ok_or(ServiceError::NotAuth)?;
+    let params: Auth = serde_json::from_slice(dbg!(&to_bytes(req).await?))?;
+    let reply = dbg!(users.get_reply(&params.u, &params.p)).ok_or(ServiceError::NotAuth)?;
     Ok(json_response(json!(&A {
         t: reply.0,
         r: reply.1,
