@@ -2,7 +2,7 @@
 authors = ["Serbe <mkoctuk@gmail.com>"]
 edition = "2021"
 name = "rgo"
-version = "0.3.4"
+version = "0.3.5"
 
 [dependencies]
 chrono = {version = "0.4", features = ["serde"]}
@@ -12,9 +12,8 @@ hyper = {version = "0.14", features = ["http2", "server"]}
 log = {version = "0.4", features = ["std"]}
 rand = "0.8"
 routerify = "2.2"
-rpel = {version = "0.4", git = "https://github.com/serbe/rpel"}
-serde = "1.0"
-serde_derive = "1.0"
+rpel = {version = "0.5", git = "https://github.com/serbe/rpel"}
+serde = { version = "1", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "1.0"
 tokio = {version = "1", features = ["io-util", "sync", "rt-multi-thread"]}

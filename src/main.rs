@@ -26,7 +26,6 @@ async fn run_server() -> Result<(), ServiceError> {
     env_logger::Builder::from_env(Env::default().default_filter_or("debug")).init();
     let addr = dotenv::var("RGO_ADDR").expect("RGO_ADDR must be set");
     let pg_cfg = dotenv::var("RGO_DB").expect("RGO_DB must be set");
-
     let pool = get_pool(&pg_cfg)?;
     let users = Users::new(&pool).await?;
 
