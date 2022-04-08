@@ -48,7 +48,7 @@ pub async fn jsonpost(req: Request<Body>) -> Result<Response<Body>, ServiceError
         ),
         Command::User(obj) => return user_cmd(obj, pool).await,
     };
-    Ok(json_response(json!(msg))?)
+    json_response(json!(msg))
 }
 
 pub fn json_response(body: Value) -> Result<Response<Body>, ServiceError> {
@@ -108,7 +108,7 @@ pub async fn check_auth(req: Request<Body>) -> Result<Response<Body>, ServiceErr
         .get_user(&params.t)
         .map(|u| u.role == params.r)
         .map_or(false, |v| v);
-    Ok(json_response(json!(&C { r: result }))?)
+    json_response(json!(&C { r: result }))
 }
 
 pub async fn login(req: Request<Body>) -> Result<Response<Body>, ServiceError> {
@@ -119,8 +119,8 @@ pub async fn login(req: Request<Body>) -> Result<Response<Body>, ServiceError> {
         .clone();
     let params: Auth = serde_json::from_slice(dbg!(&to_bytes(req).await?))?;
     let reply = dbg!(users.get_reply(&params.u, &params.p)).ok_or(ServiceError::NotAuth)?;
-    Ok(json_response(json!(&A {
+    json_response(json!(&A {
         t: reply.0,
         r: reply.1,
-    }))?)
+    }))
 }

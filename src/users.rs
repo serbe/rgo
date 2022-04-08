@@ -158,5 +158,5 @@ pub async fn user_cmd(obj: UserObject, pool: &RpelPool) -> Result<Response<Body>
         UserObject::UpdateUser(item) => WsUserMsg::from_update(User::update(pool, item).await?),
         UserObject::DeleteUser(id) => WsUserMsg::from_delete(User::delete(pool, id).await?),
     };
-    Ok(json_response(json!(a))?)
+    json_response(json!(a))
 }
