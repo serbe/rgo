@@ -7,7 +7,7 @@ version = "0.3.5"
 [dependencies]
 chrono = {version = "0.4", features = ["serde"]}
 dotenv = "0.15"
-env_logger = "0.9"
+env_logger = "0.10"
 hyper = {version = "0.14", features = ["http2", "server"]}
 log = {version = "0.4", features = ["std"]}
 rand = "0.8"
