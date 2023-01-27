@@ -107,8 +107,7 @@ pub async fn get_item(item: &Item, pool: &RpelPool) -> Result<DbObject, ServiceE
         ("SirenType", id) => Ok(DbObject::SirenType(SirenType::get(pool, id).await?)),
         ("User", id) => Ok(DbObject::User(User::get(pool, id).await?)),
         (e, id) => Err(ServiceError::BadRequest(format!(
-            "bad item object: {} {}",
-            e, id
+            "bad item object: {e} {id}"
         ))),
     }
 }
@@ -158,7 +157,7 @@ pub async fn get_list(name: &str, pool: &RpelPool) -> Result<DbObject, ServiceEr
             SelectItem::siren_type_all(pool).await?,
         )),
         "UserList" => Ok(DbObject::UserList(UserList::get_all(pool).await?)),
-        e => Err(ServiceError::BadRequest(format!("bad list object: {}", e))),
+        e => Err(ServiceError::BadRequest(format!("bad list object: {e}"))),
     }
 }
 
